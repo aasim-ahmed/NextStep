@@ -27,10 +27,10 @@ app.get("/", (req, res) => {
 
 
 app.use("/api/auth", authRoutes);
-app.use("/api/user",authMiddleware, userRoutes);
-app.use("/api/ai", authMiddleware,aiRoute);
-app.get("/api/check", authMiddleware,(req, res) => {
-  res.json({ "status": "success", "message": "Authorized" });
+app.use("/api/user", authMiddleware, userRoutes);
+app.use("/api/ai", authMiddleware, aiRoute);
+app.get("/api/check", authMiddleware, (req, res) => {
+  res.json({ "status": "success", "message": "Authorized", "user": req.user });
 });
 
 

@@ -1,19 +1,29 @@
-import {Router} from "express";
+import { Router } from "express";
 import askAi from "../Utils/AskAi.js";
 import GuideModel from "../models/Guide.model.js";
 import UserModel from "../models/User.model.js";
 
-let router = Router();  
+let router = Router();
 
 
 router.post("/askQuery/:id", async (req, res) => {
-    let userId = req.params.id;
+    // We ignore the :id from the URL params and use the securely authenticated user ID
+    let userId = req.user._id;
 
     let { name, topic, previousExperience } = req.body;
 
     let aiRes = await askAi(topic, previousExperience, name);
-    let aiResJSON = JSON.parse(aiRes);
 
+    if (!aiRes) {
+        return res.status(500).json({ status: "error", message: "Failed to generate AI response." });
+    }
+
+    let aiResJSON;
+    try {
+        aiResJSON = JSON.parse(aiRes);
+    } catch (e) {
+        return res.status(500).json({ status: "error", message: "Invalid JSON response from AI." });
+    }
 
 
     let guideModel = new GuideModel(aiResJSON);
@@ -25,7 +35,7 @@ router.post("/askQuery/:id", async (req, res) => {
 
 
     res.json(aiResJSON);
-    
+
 
 
 });
